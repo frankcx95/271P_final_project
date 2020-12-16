@@ -41,6 +41,55 @@ import copy
 #
 ###########################################################
 
+
+def gen_tsp(n, k, u, v, p):
+    print("generating " + str(p) + " problems with parameters: N=" + str(n) +
+          ", K=" + str(k) + ", U=" + str(u) + ", V=" + str(v) + "...")
+    filename_prefix = "tsp-problem-" + str(n) + "-" + str(k) + "-" + str(u) + "-" + str(v) + "-"
+    # loop problem instances
+    for i in range(1, p + 1):
+        filename = filename_prefix + str(i) + ".txt"
+        outfile = open(filename, "w")
+        outfile.write(str(n) + "\n")
+        # generate k distinct distance values following N(u,v) normal distribution
+        distinct_dists = np.random.normal(loc=u, scale=v, size=k).tolist()
+        # enforce positive distance values
+        # of course, it might violate the distinct and normal distribution intention,
+        # but for now, it is good enough for our purpose of controlling the hardness
+        # of generated problems
+        distinct_dists = [abs(x) for x in distinct_dists]
+        # all possible edges in the complete graph matrix
+        all_edges = []
+        for x in range(0, n):
+            for y in range(x + 1, n):
+                edge = (x, y)
+                all_edges.append(edge)
+        # randomly pick k edges from all_edges for those distinct distance values
+        distinct_edges = random.sample(all_edges, k)
+
+        # init the graph matrix
+        graph = np.zeros(shape=(n, n))
+
+        # loop edges to assign distance values
+        distinct_dists_disposable = copy.deepcopy(distinct_dists)
+        for x in range(0, n):
+            for y in range(x + 1, n):
+                # this edge should have a distinct distance
+                if (x, y) in distinct_edges:
+                    graph[x, y] = distinct_dists_disposable.pop(0)
+                    graph[y, x] = graph[x, y]
+                # this edge random pick one distance from the k distinct distances
+                else:
+                    graph[x, y] = random.choice(distinct_dists)
+                    graph[y, x] = graph[x, y]
+
+        # write the graph matrix to outfile
+        for x in range(0, n):
+            outfile.write(" ".join(str(x) for x in graph[x, :].tolist()) + "\n")
+        outfile.close()
+    print("generation is done.")
+
+
 if __name__ == "__main__":
 
     # parse parameters
@@ -81,44 +130,5 @@ if __name__ == "__main__":
     if n*(n-1)/2 < k:
         print("[Warning] K > C(2,N)(Choose 2 from N), which means all distance values will be distinct.")
 
-    print("generating " + str(p) + " problems with parameters: N=" + str(n) +
-          ", K=" + str(k) + ", U=" + str(u) + ", V=" + str(v) + "...")
-    filename_prefix = "tsp-problem-" + str(n) + "-" + str(k) + "-" + str(u) + "-" + str(v) + "-"
-    # loop problem instances
-    for i in range(1, p + 1):
-        filename = filename_prefix + str(i) + ".txt"
-        outfile = open(filename, "w")
-        outfile.write(str(n) + "\n")
-        # generate k distinct distance values following N(u,v) normal distribution
-        distinct_dists = np.random.normal(loc=u, scale=v, size=k).tolist()
-        # all possible edges in the complete graph matrix
-        all_edges = []
-        for x in range(0, n):
-            for y in range(x + 1, n):
-                edge = (x, y)
-                all_edges.append(edge)
-        # randomly pick k edges from all_edges for those distinct distance values
-        distinct_edges = random.sample(all_edges, k)
-
-        # init the graph matrix
-        graph = np.zeros(shape=(n, n))
-
-        # loop edges to assign distance values
-        distinct_dists_disposable = copy.deepcopy(distinct_dists)
-        for x in range(0, n):
-            for y in range(x + 1, n):
-                # this edge should have a distinct distance
-                if (x, y) in distinct_edges:
-                    graph[x, y] = distinct_dists_disposable.pop(0)
-                    graph[y, x] = graph[x, y]
-                # this edge random pick one distance from the k distinct distances
-                else:
-                    graph[x, y] = random.choice(distinct_dists)
-                    graph[y, x] = graph[x, y]
-
-        # write the graph matrix to outfile
-        for x in range(0, n):
-            outfile.write(" ".join(str(x) for x in graph[x, :].tolist()) + "\n")
-        outfile.close()
-    print("generation is done.")
+    gen_tsp(n, k, u, v, p)
 

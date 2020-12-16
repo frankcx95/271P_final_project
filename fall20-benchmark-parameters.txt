@@ -1,0 +1,96 @@
+========================
+    Max-SAT Problems
+========================
+
+------------------------
+1. Number of variables varies from 100 to 100K:
+N = 
+100,
+200,
+500,
+1K,
+2.5K,
+5K,
+10K,
+25K,
+50K,
+100K
+------------------------
+
+------------------------
+2. Only focus on Max-3SAT problem
+K = 3
+------------------------
+
+------------------------
+3. Number of clauses vary from 4.3*N to 7.5*N
+Suppose ratio m = M/N, then m is a knob to control the hardness of the problem;
+Intuitively, m is proportional to the average how many clauses a variable will need to appear in repeatedly.
+For example, if M = 30, N = 10, K = 3 (so m=3), then we need to choose 3 out 10 variables 30 times to fill the 30 clauses
+which means that on average, each variable will appear in 3 clauses at least.
+M =
+4.35*N,
+4.70*N,
+5.05*N,
+5.40*N,
+5.75*N,
+6.10*N,
+6.45*N,
+6.80*N,
+7.15*N,
+7.50*N
+------------------------
+
+In total
+We generate count(N) * count(K) * count(M) problems
+= 10 * 1 * 10
+= 100 problems
+========================
+
+
+
+
+========================
+     TSP Problems
+========================
+
+------------------------
+1. Number of locations varies from 25 to 1000:
+N = 
+25,
+50,
+75,
+100,
+200,
+300,
+400,
+600,
+800,
+1000
+------------------------
+
+------------------------
+2. Number of distinct distance values varies from 0.01*N*N to 0.4*N*N:
+Given N, there are at most (Choose 2 from N) N*(N-1)/2 edges in a complete graph with N nodes.
+We use distinct distance values to control the hardness of the problem.
+K = 
+0.01*N*N,
+0.05*N*N,
+0.1*N*N,
+0.2*N*N,
+0.4*N*N
+------------------------
+
+------------------------
+3. Variance of distances varies between small and big:
+Variance of distances also controls the hardness of the problem.
+V = 
+5%*U, (small)
+25%*U (big)
+------------------------
+
+In total
+We generate count(N) * count(K) * count(V) problems
+= 10 * 5 * 2
+= 100 problems
+========================
