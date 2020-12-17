@@ -16,10 +16,12 @@ class sls:
     def generate_random_starting_point(self):
         return random.randint(0, len(self.unvisited)-1)
 
-    def calculate_distance(self):
-        self.dist = 0
-        for start, end in self.tour.items():
-            self.dist += self.adjacency_list[start][end]
+    def calculate_distance(self, tour):
+        dist = 0
+        for i in range(len(tour) - 1):
+            dist += self.adjacency_list[tour[i]][tour[i+1]]
+        
+        return dist
 
     def read_file(self, file):
         f = open(file, "r")
@@ -48,23 +50,24 @@ class sls:
         return closest_city
 
     def greedy_method(self):
-        
+        self.tour = {}
         start_city = self.unvisited[self.generate_random_starting_point()]
         self.unvisited.remove(start_city)
+        prev_city = start_city
         current_city = start_city
         visited = []
         while(len(visited) < self.number_of_item):
+
             visited.append(current_city)
             next_city = self.find_nearest_point(current_city, visited)
             if(next_city != -1):
-                self.tour[current_city] = next_city
                 current_city = next_city
+                prev_city = current_city
             else:
                 break
 
-        self.tour[current_city] = start_city
         self.current_tour = visited
-        self.calculate_distance()
+        self.current_tour.append(start_city)
     
     def look_up_start_city(self, dest_city):
         for start in self.tour:
@@ -85,42 +88,55 @@ class sls:
 
         iter = 0
         start_time = datetime.now()
-        prev_distance = self.dist
+        prev_distance = 0
         entropy = 0
         best_dist = float('INF')
+        best_tour = []
         while(iter < 1000 and len(self.unvisited) > 0):
             if(entropy < 0.01):
                 self.greedy_method()
-            for city_a in range(self.number_of_item-1):
-                for city_c in range(city_a+1, self.number_of_item):
-                    city_b = self.tour[city_a]
-                    city_d = self.tour[city_c]
-                    if(city_d == city_a or city_c == city_b):
-                        continue
-                    shorter = self.compare_distance([(city_a, city_b), (city_c, city_d)], [(city_a, city_d), [city_c, city_b]])
-                    if(shorter):
-                        self.tour[city_a] = city_d
-                        self.tour[city_c] = city_b
+                prev_distance = self.calculate_distance(self.current_tour)
+            for i in range(1,self.number_of_item-1):
+                for k in range(i+1, self.number_of_item):
+                    new_route = self.current_tour[0:i]
+                    sub_route = self.current_tour[i:k+1][::-1]
+                    new_route.extend(sub_route)
+                    new_route.extend(self.current_tour[k+1:])
+                    
+                    if(self.calculate_distance(new_route) < self.calculate_distance(self.current_tour)):
+                        self.current_tour = new_route    
             iter += 1
-            self.calculate_distance()
-            entropy = prev_distance - self.dist
-            prev_distance = self.dist
-            if self.dist < best_dist:
-                best_dist = self.dist
+            current_dist = self.calculate_distance(self.current_tour)
+            entropy = prev_distance - current_dist
+            prev_distance = current_dist
+            if current_dist < best_dist:
+                best_dist = current_dist
+                best_tour = self.current_tour
 
             time_delta = datetime.now() - start_time
             if time_delta.total_seconds() >= 900:
+                print(time_delta.total_seconds())
                 break
-        
-        self.dist = best_dist
+
+        return best_dist
 
 if __name__ == "__main__":
-
-    directory = ('fall20-benchmark-tsp-problems/')
+    
+    directory = ['tsp-problem-100-100-100-25-1.txt'] #, 'tsp-problem-75-2250-100-25-1.txt', 'tsp-problem-100-500-100-25-1.txt', 'tsp-problem-200-4000-100-5-1.txt']
     path = ''
     
+    for file in directory:
+        path = 'fall20-benchmark-tsp-problems/' + file
+        test = sls(path)
+        print(test.stochastic_local_search())
+        #print(test.dist)
+        #print(test.get_path())
+        print('\n')
+
     index = 0
     
+    '''
+    directory = 'fall20-benchmark-tsp-problems/'
     f = open("result1.csv", "w")
     f.write('SLS\n')
     f.write('TSP\n')
@@ -132,8 +148,8 @@ if __name__ == "__main__":
             test = sls(path)   
             test.stochastic_local_search()
             f.write(str(test.dist) + '\n')
-            index += 1
 
+    '''
 
 
 
