@@ -68,21 +68,6 @@ class sls:
 
         self.current_tour = visited
         self.current_tour.append(start_city)
-    
-    def look_up_start_city(self, dest_city):
-        for start in self.tour:
-            if self.tour[start] == dest_city:
-                return start
-        return ''
-
-    def compare_distance(self, old_route, new_route):
-        old_dist = new_dist = 0
-        for edge in old_route:
-            old_dist += self.adjacency_list[edge[0]][edge[1]]
-        for edge in new_route:
-            new_dist += self.adjacency_list[edge[0]][edge[1]]
-        
-        return new_dist < old_dist
 
     def stochastic_local_search(self):
 
@@ -118,26 +103,13 @@ class sls:
                 print(time_delta.total_seconds())
                 break
 
+        #print(best_tour)
         return best_dist
 
 if __name__ == "__main__":
-    
-    directory = ['tsp-problem-100-100-100-25-1.txt'] #, 'tsp-problem-75-2250-100-25-1.txt', 'tsp-problem-100-500-100-25-1.txt', 'tsp-problem-200-4000-100-5-1.txt']
-    path = ''
-    
-    for file in directory:
-        path = 'fall20-benchmark-tsp-problems/' + file
-        test = sls(path)
-        print(test.stochastic_local_search())
-        #print(test.dist)
-        #print(test.get_path())
-        print('\n')
 
-    index = 0
-    
-    '''
     directory = 'fall20-benchmark-tsp-problems/'
-    f = open("result1.csv", "w")
+    f = open("result.csv", "w")
     f.write('SLS\n')
     f.write('TSP\n')
     for file in os.listdir(directory):
@@ -146,47 +118,6 @@ if __name__ == "__main__":
             result = ''
             path = directory + file  
             test = sls(path)   
-            test.stochastic_local_search()
-            f.write(str(test.dist) + '\n')
-
-    '''
-
-
-
-
-    '''    
-    def stochastic_local_search(self):
-
-        iter = 0
-        while(iter < 1000):
-            current_city = self.generate_random_starting_point()
-            index = self.current_tour.index(current_city)
-            indexs = self.calculate_index(index)
-            add_edge = list(filter(lambda x: x != current_city and x!= self.current_tour[indexs[0]] and x!= self.current_tour[indexs[1]], self.current_tour))
-            print(add_edge)
-            break
-
-
-    def stochastic_local_search(self):
-        iter = 0
-        self.greedy_method()
-        prev_distance = self.dist
-        entropy = 1
-
-        while(iter < 1000):
-            city_a = self.generate_random_starting_point()
-            unvisited = list(filter(lambda x: x!=city_a, self.tour.keys()))
-            for city_c in unvisited:
-                city_b = self.tour[city_a]
-                city_d = self.tour[city_c]
-                if(city_d == city_a or city_c == city_b):
-                    continue
-                shorter = self.compare_distance([(city_a, city_b), (city_c, city_d)], [(city_a, city_d), [city_c, city_b]])
-                if(shorter):
-                    self.tour[city_a] = city_d
-                    self.tour[city_c] = city_b
-            iter += 1
-            self.calculate_distance()
-            entropy = prev_distance - self.dist
-            prev_distance = self.dist
-'''
+            result = test.stochastic_local_search()
+            f.write(file + ', ' + str(result) + '\n')
+            
